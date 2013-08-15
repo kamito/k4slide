@@ -1,5 +1,8 @@
 require "k4slide/version"
+require 'active_support'
 
 module K4slide
-  # Your code goes here...
+  extend ActiveSupport::Autoload
+
+  autoload :Tasks
 end
