@@ -34,10 +34,15 @@ module K4slide
             task :markdown do
               puts "Compile Markdown"
             end
+
+            desc 'Compile sources.'
+            task :all => ['k4s:compile:closure', 'k4s:compile:sass', 'k4s:compile:markdown']
           end
 
-          desc 'Compile sources.'
-          task :compile => ['compile:closure', 'compile:sass', 'compile:markdown']
+          namespace :example do
+            task :md2s => (['k4s:example:compile'] + example_markdown_targets())
+            task :compile => ['k4s:compile:all']
+          end
         end
       end
 
@@ -47,9 +52,8 @@ module K4slide
         source_dir = @config.closure.target_dir
         compiled_dir = @config.closure.compiled_dir
 
-        @config.closure.load_paths << source_dir
-
         depends_files = []
+        @config.closure.load_paths << source_dir
         @config.closure.load_paths.each do |load_path|
           depends_files += FileList[File.join(load_path, '**/*.js')].flatten if load_path
         end
@@ -60,8 +64,11 @@ module K4slide
         filelist.each do |source_path|
           source_basename = File.basename(source_path)
           target_path = File.join(compiled_dir, source_basename)
+          same_name_dir = source_path.gsub(/\.js$/, '')
           depends = depends_files.dup
+          depends.unshift(FileList[File.join(same_name_dir, '**/*.js')].flatten)
           depends.unshift(source_path)
+          depends = depends.flatten
 
           file(target_path => depends) do |t, args|
             basename = File.basename(t.name).gsub(/\.js$/, '')
@@ -95,6 +102,8 @@ module K4slide
         filelist = FileList[File.join(source_dir, "*.#{ext}")]
         filelist.each do |source_path|
           source_basename = File.basename(source_path)
+          next if source_basename =~ /^_/
+
           source_basename = source_basename.gsub(/#{ext}$/, 'css')
           target_path = File.join(compiled_dir, source_basename)
           depends = depends_files.dup
@@ -112,6 +121,36 @@ module K4slide
           target_files << target_path
         end
 
+        return target_files
+      end
+
+      # Compiling example markdown file
+      def example_markdown_targets()
+        target_files = []
+
+        example_dir = File.join(K4_ROOT, 'example')
+        ext = 'md'
+        filelist = FileList[File.join(example_dir, "*.#{ext}")]
+        puts filelist
+
+        filelist.each do |source_path|
+          source_basename = File.basename(source_path)
+          next if source_basename =~ /^_/
+
+          source_basename = source_basename.gsub(/#{ext}$/, 'html')
+          target_path = File.join(example_dir, source_basename)
+
+          file(target_path) do |t, args|
+            puts t.name
+            src = File.read(source_path)
+            compiler_ = MarkdownCompiler.new(@compiler)
+            html_source = compiler_.to_slide(src)
+            File.open(target_path, 'w') do |io|
+              io.write(html_source)
+            end
+          end
+          target_files << target_path
+        end
         return target_files
       end
     end
