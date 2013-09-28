@@ -1,0 +1,68 @@
+//
+
+@import "_mixin.scss";
+@import "_config.scss";
+
+
+body {
+    background-color: #000000;
+    color: #FFFFFF;
+    * {
+        font-size: 18pt;
+        color: $font-color;
+    }
+}
+
+div[role="slide"] {
+    padding: 2%;
+    box-sizing: border-box;
+    background-color: #FFFFFF;
+
+    $radius: 1%;
+    border-radius: $radius;
+    -webkit-border-radius: $radius;
+    -moz-border-radius: $radius;
+
+    > h1, h2, h3, h4, h5, ul, ol, li {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    &[slide-level="1"], &[slide-level="2"] {
+        > h1, h2 {
+            @include horizonal-centerize;
+            margin-top: 40% * 3 / 4;
+            margin-bottom: 5% * 3 / 4;
+            padding-left: 1%;
+            font-size: 140%;
+        }
+        > h1 {
+            border-bottom: 1px solid $border-color;
+            border-left: 10px solid $border-color;
+        }
+        > h2 {
+            border-left: 10px solid $border-color;
+        }
+        > ul, ol {
+            text-align: right;
+            list-style-type: none;
+        }
+    }
+
+    &[slide-level="3"] {
+        > h3 {
+            border-bottom: 1px solid $border-color;
+            font-size: 120%;
+        }
+    }
+
+    &:last-child {
+        > h3 {
+            display: none;
+        }
+        > p {
+            @include horizonal-centerize;
+            text-align: center;
+        }
+    }
+}

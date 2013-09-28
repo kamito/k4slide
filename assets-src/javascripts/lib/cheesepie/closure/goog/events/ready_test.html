@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Closure Unit Tests - goog.events.ready</title>
+    <script src="../../../../closure/goog/base.js"></script>
+    <script>
+      goog.require('goog.events');
+      goog.require('goog.events.ready');
+      goog.require('goog.testing.jsunit');
+    </script>
+  </head>
+  <body>
+    <script>
+      function tearDown() {
+        goog.events.removeAll();
+      }
+
+      function testOnDOMContentLoaded() {
+        goog.events.ready(function() {
+          assertTrue(goog.events.readyObj.readyBound);
+        });
+      }
+
+      function testIsReadyBeforeOnLoad() {
+        window.onload = function() {
+          assertTrue(goog.events.readyObj.isReady);
+        };
+      }
+    </script>
+  </body>
+</html>
