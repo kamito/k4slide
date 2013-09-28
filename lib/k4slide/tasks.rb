@@ -140,9 +140,6 @@ module K4slide
           source_basename = source_basename.gsub(/#{ext}$/, 'html')
           target_path = File.join(example_dir, source_basename)
 
-          # DEV
-          File.delete(target_path) if File.exists?(target_path)
-
           file(target_path) do |t, args|
             puts t.name
             src = File.read(source_path)
