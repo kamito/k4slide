@@ -1,0 +1,11 @@
+// base.css
+
+body {}
+
+div[role="slide"] {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+@import 'themes/base';
