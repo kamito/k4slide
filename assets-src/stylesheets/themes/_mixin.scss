@@ -1,0 +1,6 @@
+// mix-in
+
+@mixin horizonal-centerize {
+    margin-top: 40% * 3 / 4;
+    margin-bottom: 5% * 3 / 4;
+}
