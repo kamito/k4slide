@@ -39,6 +39,7 @@ module K4compiler
         opt = {
           :target_dir => nil,
           :compiled_dir => nil,
+          :renderer => ::K4slide::MarkdownRenderer,
         }
         return original_options.update(opt).with_indifferent_access()
       end
