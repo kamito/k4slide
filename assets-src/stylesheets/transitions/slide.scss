@@ -1,0 +1,8 @@
+// transition
+@import '_mixin';
+
+$duration: .3s;
+
+div[role="slide"] {
+    @include _transition(left $duration linear 0, opacity $duration linear 0, -webkit-transform $duration linear 0);
+}

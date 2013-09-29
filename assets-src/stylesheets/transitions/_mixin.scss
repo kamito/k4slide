@@ -1,0 +1,13 @@
+
+
+@mixin _transition($val...) {
+    transition: $val;
+    -webkit-transition: $val;
+    -moz-transition: $val;
+}
+
+@mixin _transform($val...) {
+    transform: $val;
+    -webkit-transform: $val;
+    -moz-transform: $val;
+}
