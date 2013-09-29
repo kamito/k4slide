@@ -37,6 +37,12 @@ k4.slide.Controller = function(config) {
      * @type {goog.History}
      */
     this.history_ = new goog.History();
+
+    /**
+     * Installed styles
+     * @type {Element|StyleSheet}
+     */
+    this.installedStyles_ = null;
 }
 goog.inherits(k4.slide.Controller, goog.ui.Component);
 
@@ -135,7 +141,11 @@ k4.slide.Controller.prototype.setSlideScale_ = function() {
         '}',
         ''
     ].join("");
-    goog.style.installStyles(installStyles);
+
+    if (goog.isDefAndNotNull(this.installedStyles_)) {
+        goog.style.uninstallStyles(this.installedStyles_);
+    }
+    this.installedStyles_ = goog.style.installStyles(installStyles);
 };
 
 /**
@@ -306,7 +316,4 @@ k4.slide.Controller.prototype.goTo = function(page) {
 k4.slide.Controller.prototype.resize = function() {
     this.initWindow_();
     this.calculateSlideSizeAndPosition_();
-    goog.array.forEach(this.slides_, function(s, i, a) {
-        s.setPositionByConfig();
-    }, this);
 };
