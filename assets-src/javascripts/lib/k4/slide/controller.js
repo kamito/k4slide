@@ -34,9 +34,9 @@ k4.slide.Controller = function(config) {
     this.current_ = 0;
 
     /**
-     * @type {goog.history.Html5History}
+     * @type {goog.History}
      */
-    this.history_ = null;
+    this.history_ = new goog.History();
 }
 goog.inherits(k4.slide.Controller, goog.ui.Component);
 
@@ -91,18 +91,27 @@ k4.slide.Controller.prototype.calculateSlideSizeAndPosition_ = function() {
     if (aspectRatio > slideAspect) {
         toHeight = Math.floor(winHeight - (winMargin * 2));
         slideRatio = toHeight / slideHeight;
+        toWidth = slideWidth * slideRatio;
     } else {
         toWidth = Math.floor(winWidth - (winMargin * 2));
         slideRatio = toWidth / slideWidth;
+        toHeight = slideHeight * slideRatio;
         isHorizonal = false;
     }
     c.set('slide.ratio', slideRatio);
 
     // position
+    // current
     var slideTop = Math.round((winHeight - slideHeight) / 2);
     var slideLeft = Math.round((winWidth - slideWidth) / 2);
-    c.set('slide.top', slideTop);
-    c.set('slide.left', slideLeft)
+    c.set('slide.current.top', slideTop);
+    c.set('slide.current.left', slideLeft);
+    // next
+    var nextLeft = ((winWidth + slideWidth) / 2) + (toWidth - slideWidth) + c.get('window.margin');
+    c.set('slide.next.left', nextLeft);
+    // prev
+    var prevLeft = ((winWidth - slideWidth) / 2) - (toWidth) - c.get('window.margin');
+    c.set('slide.prev.left', prevLeft);
 
     // set ratio
     this.setSlideScale_();
@@ -110,13 +119,21 @@ k4.slide.Controller.prototype.calculateSlideSizeAndPosition_ = function() {
 
 k4.slide.Controller.prototype.setSlideScale_ = function() {
     var c = this.config_;
+    var sTop  = c.get('slide.current.top');
+    var sLeft = c.get('slide.current.left');
+    var nLeft = c.get('slide.next.left');
+    var pLeft = c.get('slide.prev.left');
     var ratio = c.get('slide.ratio');
 
     var installStyles = [
+        'div.current{top:'+ sTop.toString() +'px; left:'+ sLeft.toString() +'px;}',
+        'div.next{top:'+ sTop.toString() +'px; left:'+ nLeft.toString() +'px;}',
+        'div.prev{top:'+ sTop.toString() +'px; left:'+ pLeft.toString() +'px;}',
         'div[role="slide"]{',
         '-webkit-transform: scale('+ ratio.toString() +');}',
         '-moz-transform: scale('+ ratio.toString() +');',
-        '}'
+        '}',
+        ''
     ].join("");
     goog.style.installStyles(installStyles);
 };
@@ -192,28 +209,52 @@ k4.slide.Controller.prototype.getPrev = function() {
  * @return {k4.slide.|null|undefined}
  */
 k4.slide.Controller.prototype.updateTitle = function() {
-    if (this.history_) {
-        var c = this.getCurrent();
-        if (c) {
-            var el = c.getElement();
-            if (el) {
-                var page = el.getAttribute('page');
-                if (page) {
-                    this.history_.setToken(page);
-                }
-            }
+    var c = this.getCurrent();
+    if (c) {
+        var p = c.getPage();
+        if (p) {
+            this.setToken(p);
         }
     }
 };
 
+/**
+ * Get current slide object
+ * @return {k4.slide.|null|undefined}
+ */
+k4.slide.Controller.prototype.getCurrentPageNumber = function() {
+    var page = 0;
+    if (this.history_) {
+        page = parseInt(this.history_.getToken(), 10);
+    }
+    return page;
+};
+
+/**
+ * Get current slide object
+ * @return {k4.slide.|null|undefined}
+ */
+k4.slide.Controller.prototype.setToken = function(val) {
+    if (this.history_) {
+        this.history_.setToken(val);
+    }
+};
 
 /**
  * start presentation
  */
 k4.slide.Controller.prototype.start = function() {
+    var l = 0;
     if (goog.isArrayLike(this.slides_) && this.slides_.length > 0) {
-        this.slides_[0].applyClasses(this.config_.get('slide.class.current'));
-        this.slides_[0].show();
+        goog.array.forEach(this.slides_, function(s, i, a) {
+            if (i == l) {
+                s.toCurrent();
+            } else if (i < l) {
+                s.toPrev();
+            } else if (i > l) {
+                s.toNext();
+            }
+        }, this);
     }
 };
 
@@ -227,6 +268,7 @@ k4.slide.Controller.prototype.next = function() {
         currentSlide.toPrev();
         nextSlide.toCurrent();
         this.current_++;
+        this.updateTitle();
     }
 };
 
@@ -240,6 +282,21 @@ k4.slide.Controller.prototype.back = function() {
         currentSlide.toNext();
         prevSlide.toCurrent();
         this.current_--;
+        this.updateTitle();
+    }
+};
+
+/**
+ * goto
+ */
+k4.slide.Controller.prototype.goTo = function(page) {
+    var currentSlide = this.getCurrent();
+    var gotoSlide = this.slides_[parseInt(page, 10)];
+    if (gotoSlide) {
+        currentSlide.toNext();
+        prevSlide.toCurrent();
+        this.current_--;
+        this.updateTitle();
     }
 };
 

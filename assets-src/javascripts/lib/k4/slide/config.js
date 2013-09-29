@@ -26,8 +26,8 @@ k4.slide.Config.DEFAULT_CONFIG = {
     },
     'slide': {
         'pattern': 'div[role="slide"]',
-        'width': 640,
-        'height': 480,
+        'width': 1024,
+        'height': 768,
         'ratio': 1.0,
         'class': {
             'current': 'current',
@@ -69,7 +69,7 @@ k4.slide.Config.prototype.set= function(key, val) {
         if (i == lastIndex) {
             tmp[k] = val;
         } else {
-            tmp = (goog.isDefAndNotNull(tmp) && goog.isObject(tmp)) ? tmp[k] : undefined;
+            tmp = tmp[k];
         }
     }, this);
 };

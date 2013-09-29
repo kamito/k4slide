@@ -2,6 +2,7 @@ goog.provide('k4.slide.Slide');
 
 goog.require('goog.dom.classes');
 goog.require('goog.style');
+goog.require('goog.string');
 goog.require('goog.math.Size');
 goog.require('goog.math.Coordinate');
 goog.require('goog.ui.Component');
@@ -38,9 +39,8 @@ k4.slide.Slide.prototype.init_ = function() {
     // size
     this.setSizeByConfig();
     // position
-    this.setPositionByConfig();
-    // hide
-    goog.style.showElement(el, false);
+    // this.setPositionByConfig();
+    this.hide();
 };
 
 /**
@@ -85,7 +85,8 @@ k4.slide.Slide.prototype.setPositionByConfig = function() {
  */
 k4.slide.Slide.prototype.show = function() {
     var el = this.getElement();
-    goog.style.showElement(el, true);
+    goog.style.setOpacity(el, 1);
+    // goog.style.showElement(el, true);
 };
 
 /**
@@ -93,7 +94,8 @@ k4.slide.Slide.prototype.show = function() {
  */
 k4.slide.Slide.prototype.hide = function() {
     var el = this.getElement();
-    goog.style.showElement(el, false);
+    goog.style.setOpacity(el, 0);
+    // goog.style.showElement(el, false);
 };
 
 /**
@@ -140,17 +142,30 @@ k4.slide.Slide.prototype.toCurrent = function() {
 k4.slide.Slide.prototype.applyClasses = function(addClasses, opt_removeClasses) {
     var el = this.getElement();
 
-    if (goog.isArrayLike(addClasses)) {
-        goog.array.forEach(addClasses, function(cls, i, arr) {
-            goog.dom.classes.add(el, cls);
-        }, this);
-    }
-
     if (goog.isArrayLike(opt_removeClasses)) {
         goog.array.forEach(opt_removeClasses, function(cls, i, arr) {
             goog.dom.classes.remove(el, cls);
         }, this);
     }
+
+    if (goog.isArrayLike(addClasses)) {
+        goog.array.forEach(addClasses, function(cls, i, arr) {
+            goog.dom.classes.add(el, cls);
+        }, this);
+    }
+};
+
+/**
+ * return config instance.
+ */
+k4.slide.Slide.prototype.getPage = function() {
+    var page = null;
+    var el = this.getElement();
+    if (el) {
+        page = el.getAttribute('page');
+        page = (!goog.string.isEmpty(page)) ? parseInt(page, 10) : null;
+    }
+    return page;
 };
 
 /**
