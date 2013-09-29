@@ -131,14 +131,13 @@ module K4slide
         example_dir = File.join(K4_ROOT, 'example')
         ext = 'md'
         filelist = FileList[File.join(example_dir, "*.#{ext}")]
-        puts filelist
-
         filelist.each do |source_path|
           source_basename = File.basename(source_path)
           next if source_basename =~ /^_/
 
           source_basename = source_basename.gsub(/#{ext}$/, 'html')
           target_path = File.join(example_dir, source_basename)
+          # File.delete(target_path) if File.exists?(target_path)
 
           file(target_path) do |t, args|
             puts t.name
